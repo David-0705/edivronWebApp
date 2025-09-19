@@ -1,0 +1,2805 @@
+home
+    import React, { useEffect } from "react";
+    import { Link, useNavigate } from "react-router-dom";
+    import { useAuth } from "../contexts/AuthContext";
+
+    const Home: React.FC = () => {
+    const navigate = useNavigate();
+    const { isAuthenticated, isLoading } = useAuth();
+
+    // Redirect logged-in users to dashboard
+    useEffect(() => {
+        if (isAuthenticated) {
+        navigate("/dashboard", { replace: true });
+        }
+    }, [isAuthenticated, navigate]);
+
+    // Show loading while checking authentication
+    if (isLoading) {
+        return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+            <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600 mx-auto"></div>
+            <p className="mt-4 text-lg text-gray-600">Loading...</p>
+            </div>
+        </div>
+        );
+    }
+
+    // Don't render the home page if user is authenticated (they'll be redirected)
+    if (isAuthenticated) {
+        return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+            <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600 mx-auto"></div>
+            <p className="mt-4 text-lg text-gray-600">
+                Redirecting to dashboard...
+            </p>
+            </div>
+        </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex flex-col">
+        {/* Hero Section with glassmorphism */}
+        <main className="flex-1 flex flex-col justify-center items-center py-16 px-2">
+            <div className="w-full max-w-3xl bg-white/30 backdrop-blur-xl rounded-3xl shadow-2xl p-10 text-center animate-fade-in">
+            <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 mb-6 drop-shadow-lg animate-fade-in">
+                Edviron School Payment System
+            </h1>
+            <p className="mt-4 max-w-xl mx-auto text-lg text-white/80 font-medium animate-fade-in">
+                A comprehensive payment management system for schools. Create
+                payments, track transactions, and manage student fees with ease.
+            </p>
+            <div className="mt-8 flex justify-center space-x-4 animate-fade-in">
+                <Link
+                to="/register"
+                className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-lg font-semibold rounded-xl text-white bg-gradient-to-r from-pink-500 to-indigo-500 shadow-lg hover:scale-105 transition-transform duration-200"
+                >
+                Get Started
+                </Link>
+                <Link
+                to="/login"
+                className="inline-flex items-center justify-center px-8 py-3 border border-white/40 text-lg font-semibold rounded-xl text-indigo-700 bg-white/70 shadow-lg hover:bg-white/90 hover:text-pink-500 transition-colors duration-200"
+                >
+                Sign In
+                </Link>
+            </div>
+            </div>
+
+            {/* Feature Grid with animated cards */}
+            <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 w-full max-w-5xl mx-auto animate-fade-in">
+            <div className="bg-white/30 backdrop-blur-lg rounded-2xl shadow-xl p-8 flex flex-col items-center hover:scale-105 transition-transform duration-200">
+                <div className="inline-flex items-center justify-center p-4 bg-gradient-to-r from-pink-500 to-indigo-500 rounded-full shadow-lg mb-4">
+                <span className="text-3xl">💸</span>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Easy Payments</h3>
+                <p className="text-white/80">
+                Create and process school fee payments through multiple gateways
+                including Edviron, PhonePe, and more.
+                </p>
+            </div>
+            <div className="bg-white/30 backdrop-blur-lg rounded-2xl shadow-xl p-8 flex flex-col items-center hover:scale-105 transition-transform duration-200">
+                <div className="inline-flex items-center justify-center p-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-lg mb-4">
+                <span className="text-3xl">📊</span>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">
+                Transaction Tracking
+                </h3>
+                <p className="text-white/80">
+                Monitor all transactions with real-time status updates, filtering,
+                and detailed reporting.
+                </p>
+            </div>
+            <div className="bg-white/30 backdrop-blur-lg rounded-2xl shadow-xl p-8 flex flex-col items-center hover:scale-105 transition-transform duration-200">
+                <div className="inline-flex items-center justify-center p-4 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full shadow-lg mb-4">
+                <span className="text-3xl">🔒</span>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">
+                Secure & Reliable
+                </h3>
+                <p className="text-white/80">
+                Built with security in mind. All transactions are encrypted and
+                processed through trusted payment gateways.
+                </p>
+            </div>
+            </div>
+        </main>
+        {/* Footer */}
+        <footer className="text-center py-4 text-white/70 text-sm animate-fade-in">
+            &copy; {new Date().getFullYear()} Edviron School Payment App. Crafted
+            with <span className="text-pink-400">♥</span>
+        </footer>
+        </div>
+    );
+    };
+
+    export default Home;
+
+Login
+    import React, { useState } from "react";
+    import { Link, useNavigate } from "react-router-dom";
+    import { apiService } from "../services/api";
+    import { useAuth } from "../contexts/AuthContext";
+
+    const Login: React.FC = () => {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
+    const navigate = useNavigate();
+    const { login } = useAuth();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setError("");
+
+        try {
+        const response = await apiService.login(email, password);
+        login(response.access_token, response.user);
+        navigate("/");
+        } catch (err: any) {
+        setError(
+            err.response?.data?.message || "Login failed. Please try again."
+        );
+        } finally {
+        setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full">
+            <div className="bg-white/30 backdrop-blur-xl rounded-3xl shadow-2xl p-8 animate-fade-in">
+            <h2 className="text-center text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 mb-2 drop-shadow-lg animate-fade-in">
+                Sign in to your account
+            </h2>
+            <p className="text-center text-sm text-white/80 mb-6 animate-fade-in">
+                Edviron School Payment Dashboard
+            </p>
+            <form className="space-y-6" onSubmit={handleSubmit}>
+                {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl animate-fade-in">
+                    {error}
+                </div>
+                )}
+                <div className="space-y-4">
+                <div>
+                    <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-white/80"
+                    >
+                    Email address
+                    </label>
+                    <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    className="mt-1 block w-full px-4 py-3 border border-white/40 rounded-xl shadow-sm placeholder-white/60 bg-white/20 text-white focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    />
+                </div>
+                <div>
+                    <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-white/80"
+                    >
+                    Password
+                    </label>
+                    <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                    className="mt-1 block w-full px-4 py-3 border border-white/40 rounded-xl shadow-sm placeholder-white/60 bg-white/20 text-white focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    />
+                </div>
+                </div>
+                <div>
+                <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-lg font-semibold rounded-xl text-white bg-gradient-to-r from-pink-500 to-indigo-500 shadow-lg hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {isLoading ? "Signing in..." : "Sign in"}
+                </button>
+                </div>
+                <div className="text-center space-y-2">
+                <p className="text-sm text-white/80">
+                    Don't have an account?{" "}
+                    <Link
+                    to="/register"
+                    className="text-pink-300 hover:text-white font-semibold"
+                    >
+                    Register here
+                    </Link>
+                </p>
+                </div>
+            </form>
+            </div>
+        </div>
+        </div>
+    );
+    };
+
+    export default Login;
+
+MakePayments
+    import React, { useState } from "react";
+
+    interface PaymentData {
+    school_id: string;
+    trustee_id: string;
+    student_info: {
+        name: string;
+        id: string;
+        email: string;
+    };
+    amount: number;
+    gateway_name: string;
+    description: string;
+    }
+
+    const MakePayment: React.FC = () => {
+    const [formData, setFormData] = useState<PaymentData>({
+        school_id: "65b0e6293e9f76a9694d84b4", // Valid EDVIRON school_id
+        trustee_id: "65b0e552dd31950a9b41c5ba", // Valid EDVIRON trustee_id from API key
+        student_info: {
+        name: "",
+        id: "",
+        email: "",
+        },
+        amount: 0,
+        gateway_name: "edviron",
+        description: "",
+    });
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState(false);
+    const [paymentUrl, setPaymentUrl] = useState("");
+
+    const handleChange = (
+        e: React.ChangeEvent<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+        >
+    ) => {
+        const { name, value } = e.target;
+
+        if (name.startsWith("student_")) {
+        const studentField = name.replace("student_", "");
+        setFormData({
+            ...formData,
+            student_info: {
+            ...formData.student_info,
+            [studentField]: value,
+            },
+        });
+        } else {
+        setFormData({
+            ...formData,
+            [name]: name === "amount" ? parseFloat(value) || 0 : value,
+        });
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setError("");
+
+        // Basic validation
+        if (formData.amount <= 0) {
+        setError("Amount must be greater than 0");
+        setIsLoading(false);
+        return;
+        }
+
+        if (!formData.student_info.email.includes("@")) {
+        setError("Please enter a valid email address");
+        setIsLoading(false);
+        return;
+        }
+
+        try {
+        // Use EDVIRON endpoint
+        const API_URL = import.meta.env.VITE_API_URL;
+        const endpoint = `${API_URL}/create-payment`;
+
+        console.log(`Creating ${formData.gateway_name} payment with data:`, {
+            ...formData,
+            student_info: {
+            ...formData.student_info,
+            email: formData.student_info.email
+                ? "[EMAIL_PROVIDED]"
+                : "[NO_EMAIL]",
+            },
+        });
+
+        const response = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            },
+            body: JSON.stringify(formData),
+        });
+
+        const data = await response.json();
+        console.log("Payment creation response:", {
+            status: response.status,
+            data,
+        });
+
+        if (response.ok) {
+            setSuccess(true);
+            // Handle different response formats
+            const paymentUrl =
+            data.payment_url || data.paymentUrl || data.payment_link || "";
+            console.log("Payment URL extracted:", paymentUrl);
+            setPaymentUrl(paymentUrl);
+
+            // Auto-redirect to payment URL after 3 seconds (give user time to see success message)
+            if (paymentUrl) {
+            console.log("Setting up auto-redirect in 3 seconds...");
+            setTimeout(() => {
+                console.log("Redirecting to payment URL:", paymentUrl);
+                window.location.href = paymentUrl;
+            }, 3000);
+            } else {
+            console.warn("No payment URL found in response");
+            setError(
+                "Payment created but no payment URL received. Please contact support."
+            );
+            }
+        } else {
+            console.error("Payment creation failed:", {
+            status: response.status,
+            data,
+            });
+            const errorMessage =
+            data.message ||
+            data.error ||
+            `Payment creation failed (Status: ${response.status})`;
+            setError(errorMessage);
+        }
+        } catch (err: any) {
+        console.error("Payment creation error:", err);
+        let errorMessage = "Payment creation failed. Please try again.";
+
+        if (err.name === "TypeError" && err.message.includes("fetch")) {
+            errorMessage =
+            "Unable to connect to payment server. Please check your internet connection.";
+        } else if (err.message) {
+            errorMessage = `Payment creation failed: ${err.message}`;
+        }
+
+        setError(errorMessage);
+        } finally {
+        setIsLoading(false);
+        }
+    };
+
+    const handleReset = () => {
+        setFormData({
+        school_id: "65b0e6293e9f76a9694d84b4", // Valid EDVIRON school_id
+        trustee_id: "65b0e552dd31950a9b41c5ba", // Valid EDVIRON trustee_id from API key
+        student_info: {
+            name: "",
+            id: "",
+            email: "",
+        },
+        amount: 0,
+        gateway_name: "edviron",
+        description: "",
+        });
+        setSuccess(false);
+        setPaymentUrl("");
+        setError("");
+    };
+
+    if (success) {
+        return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-lg w-full">
+            <div className="bg-white/30 backdrop-blur-xl rounded-3xl shadow-2xl p-8 text-center animate-fade-in">
+                <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 mb-2 drop-shadow-lg animate-fade-in">
+                Payment Created Successfully!
+                </h1>
+                <p className="mt-2 text-base text-white/80 animate-fade-in">
+                Your payment request has been created. Redirecting to payment page
+                in 3 seconds...
+                </p>
+                <div className="bg-green-100 border border-green-200 rounded-xl p-6 mt-6 animate-fade-in">
+                <h3 className="text-lg font-bold text-green-800 mb-2">
+                    Payment Details
+                </h3>
+                <div className="text-green-700 space-y-1">
+                    <p>
+                    <strong>Student:</strong> {formData.student_info.name}
+                    </p>
+                    <p>
+                    <strong>Amount:</strong> ₹{formData.amount}
+                    </p>
+                    <p>
+                    <strong>Description:</strong> {formData.description}
+                    </p>
+                    <p>
+                    <strong>Gateway:</strong> {formData.gateway_name}
+                    </p>
+                </div>
+                {paymentUrl && (
+                    <div className="mt-4 space-y-2">
+                    <button
+                        onClick={() => (window.location.href = paymentUrl)}
+                        className="inline-flex items-center px-6 py-3 border border-transparent text-base font-semibold rounded-xl text-white bg-gradient-to-r from-green-500 to-indigo-500 shadow-lg hover:scale-105 transition-transform duration-200"
+                    >
+                        Pay Now
+                        <svg
+                        className="ml-2 -mr-1 w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 7l5 5m0 0l-5 5m5-5H6"
+                        />
+                        </svg>
+                    </button>
+                    <p className="text-xs text-green-700">
+                        Or wait for automatic redirect in 3 seconds...
+                    </p>
+                    </div>
+                )}
+                </div>
+                <button
+                onClick={handleReset}
+                className="mt-8 inline-flex items-center px-6 py-3 border border-white/40 shadow-lg text-base font-semibold rounded-xl text-indigo-700 bg-white/70 hover:bg-white/90 hover:text-pink-500 transition-colors duration-200"
+                >
+                Create Another Payment
+                </button>
+            </div>
+            </div>
+        </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-lg w-full">
+            <div className="bg-white/30 backdrop-blur-xl rounded-3xl shadow-2xl p-8 animate-fade-in">
+            <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 mb-2 drop-shadow-lg animate-fade-in">
+                Create Payment
+            </h1>
+            <p className="mt-2 text-base text-white/80 animate-fade-in">
+                Create a new payment request for school fees and other educational
+                expenses.
+            </p>
+            <form
+                onSubmit={handleSubmit}
+                className="space-y-6 mt-6 animate-fade-in"
+            >
+                {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl animate-fade-in">
+                    <h3 className="text-sm font-bold mb-1">Payment Error</h3>
+                    <p className="text-sm">{error}</p>
+                    <p className="text-xs text-red-600 mt-2">
+                    If this issue persists, please contact support or try using a
+                    different payment gateway.
+                    </p>
+                </div>
+                )}
+                {/* School Information */}
+                <div>
+                <h3 className="text-lg font-bold text-white mb-4">
+                    School Information
+                </h3>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                    <label
+                        htmlFor="school_id"
+                        className="block text-sm font-medium text-white/80"
+                    >
+                        School ID *
+                    </label>
+                    <input
+                        type="text"
+                        id="school_id"
+                        name="school_id"
+                        required
+                        value={formData.school_id}
+                        disabled
+                        readOnly
+                        className="mt-1 block w-full px-4 py-3 border border-white/40 rounded-xl shadow-sm bg-white/20 text-white/80 cursor-not-allowed focus:outline-none"
+                        placeholder="School ID (System Generated)"
+                    />
+                    </div>
+                    <div>
+                    <label
+                        htmlFor="trustee_id"
+                        className="block text-sm font-medium text-white/80"
+                    >
+                        Trustee ID *
+                    </label>
+                    <input
+                        type="text"
+                        id="trustee_id"
+                        name="trustee_id"
+                        required
+                        value={formData.trustee_id}
+                        disabled
+                        readOnly
+                        className="mt-1 block w-full px-4 py-3 border border-white/40 rounded-xl shadow-sm bg-white/20 text-white/80 cursor-not-allowed focus:outline-none"
+                        placeholder="Trustee ID (System Generated)"
+                    />
+                    </div>
+                </div>
+                </div>
+                {/* Student Information */}
+                <div>
+                <h3 className="text-lg font-bold text-white mb-4">
+                    Student Information
+                </h3>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                    <label
+                        htmlFor="student_name"
+                        className="block text-sm font-medium text-white/80"
+                    >
+                        Student Name *
+                    </label>
+                    <input
+                        type="text"
+                        id="student_name"
+                        name="student_name"
+                        required
+                        value={formData.student_info.name}
+                        onChange={handleChange}
+                        className="mt-1 block w-full px-4 py-3 border border-white/40 rounded-xl shadow-sm bg-white/20 text-white focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400"
+                        placeholder="Enter student name"
+                    />
+                    </div>
+                    <div>
+                    <label
+                        htmlFor="student_id"
+                        className="block text-sm font-medium text-white/80"
+                    >
+                        Student ID *
+                    </label>
+                    <input
+                        type="text"
+                        id="student_id"
+                        name="student_id"
+                        required
+                        value={formData.student_info.id}
+                        onChange={handleChange}
+                        className="mt-1 block w-full px-4 py-3 border border-white/40 rounded-xl shadow-sm bg-white/20 text-white focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
+                        placeholder="Enter student ID"
+                    />
+                    </div>
+                    <div className="sm:col-span-2">
+                    <label
+                        htmlFor="student_email"
+                        className="block text-sm font-medium text-white/80"
+                    >
+                        Student Email *
+                    </label>
+                    <input
+                        type="email"
+                        id="student_email"
+                        name="student_email"
+                        required
+                        value={formData.student_info.email}
+                        onChange={handleChange}
+                        className="mt-1 block w-full px-4 py-3 border border-white/40 rounded-xl shadow-sm bg-white/20 text-white focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400"
+                        placeholder="Enter student email"
+                    />
+                    </div>
+                </div>
+                </div>
+                {/* Payment Information */}
+                <div>
+                <h3 className="text-lg font-bold text-white mb-4">
+                    Payment Information
+                </h3>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                    <label
+                        htmlFor="amount"
+                        className="block text-sm font-medium text-white/80"
+                    >
+                        Amount (₹) *
+                    </label>
+                    <input
+                        type="number"
+                        id="amount"
+                        name="amount"
+                        required
+                        min="1"
+                        step="0.01"
+                        value={formData.amount}
+                        onChange={handleChange}
+                        className="mt-1 block w-full px-4 py-3 border border-white/40 rounded-xl shadow-sm bg-white/20 text-white focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
+                        placeholder="Enter amount"
+                    />
+                    </div>
+                    <div>
+                    <label
+                        htmlFor="gateway_name"
+                        className="block text-sm font-medium text-white/80"
+                    >
+                        Payment Gateway
+                    </label>
+                    <div className="mt-1 px-4 py-3 border border-white/40 rounded-xl bg-white/20 text-white/80">
+                        EDVIRON (Integrated Payment Gateway)
+                    </div>
+                    <input type="hidden" name="gateway_name" value="edviron" />
+                    </div>
+                    <div className="sm:col-span-2">
+                    <label
+                        htmlFor="description"
+                        className="block text-sm font-medium text-white/80"
+                    >
+                        Description *
+                    </label>
+                    <textarea
+                        id="description"
+                        name="description"
+                        required
+                        rows={3}
+                        value={formData.description}
+                        onChange={handleChange}
+                        className="mt-1 block w-full px-4 py-3 border border-white/40 rounded-xl shadow-sm bg-white/20 text-white focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400"
+                        placeholder="Enter payment description (e.g., School fee payment, Library fee, etc.)"
+                    />
+                    </div>
+                </div>
+                </div>
+                {/* Submit Button */}
+                <div className="flex justify-end space-x-3">
+                <button
+                    type="button"
+                    onClick={handleReset}
+                    className="px-6 py-3 border border-white/40 shadow-lg text-base font-semibold rounded-xl text-indigo-700 bg-white/70 hover:bg-white/90 hover:text-pink-500 transition-colors duration-200"
+                >
+                    Reset
+                </button>
+                <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="inline-flex justify-center py-3 px-6 border border-transparent shadow-lg text-base font-semibold rounded-xl text-white bg-gradient-to-r from-pink-500 to-indigo-500 hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {isLoading ? "Creating Payment..." : "Create Payment"}
+                </button>
+                </div>
+            </form>
+            </div>
+        </div>
+        </div>
+    );
+    };
+
+    export default MakePayment;
+
+PaymentSuccess
+    import React, { useEffect, useState } from "react";
+    import { useSearchParams, useNavigate } from "react-router-dom";
+
+    interface PaymentResult {
+    collect_id?: string;
+    status?: string;
+    amount?: string;
+    message?: string;
+    }
+
+    const PaymentSuccess: React.FC = () => {
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const [paymentResult, setPaymentResult] = useState<PaymentResult>({});
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        // Get parameters from URL
+        const collectId = searchParams.get("collect_id");
+        const status = searchParams.get("status");
+        const amount = searchParams.get("amount");
+
+        // Set payment completion flag in localStorage for dashboard refresh
+        if (status === "success" && collectId) {
+        localStorage.setItem(
+            "recent_payment_completion",
+            JSON.stringify({
+            collect_id: collectId,
+            timestamp: Date.now(),
+            status: status,
+            })
+        );
+        }
+
+        setPaymentResult({
+        collect_id: collectId || "",
+        status: status || "",
+        amount: amount || "",
+        message:
+            status === "success"
+            ? "Payment completed successfully!"
+            : "Payment status updated",
+        });
+
+        setLoading(false);
+    }, [searchParams]);
+
+    const handleGoHome = () => {
+        navigate("/make-payment");
+    };
+
+    const handleViewTransactions = () => {
+        // Set a specific flag for payment completion navigation
+        navigate("/dashboard?payment_completed=true&reset_filters=true");
+    };
+
+    if (loading) {
+        return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
+            <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-pink-400 mx-auto"></div>
+            <p className="mt-4 text-white/80">Loading payment result...</p>
+            </div>
+        </div>
+        );
+    }
+
+    const isSuccess = paymentResult.status === "success";
+
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-lg w-full">
+            <div className="bg-white/30 backdrop-blur-xl rounded-3xl shadow-2xl p-8 text-center animate-fade-in relative overflow-hidden">
+            {/* Confetti effect for success */}
+            {isSuccess && (
+                <div className="absolute inset-0 pointer-events-none z-0">
+                {/* Simple confetti dots */}
+                {[...Array(30)].map((_, i) => (
+                    <span
+                    key={i}
+                    className={`absolute rounded-full opacity-70 animate-confetti`}
+                    style={{
+                        top: `${Math.random() * 100}%`,
+                        left: `${Math.random() * 100}%`,
+                        width: `${8 + Math.random() * 12}px`,
+                        height: `${8 + Math.random() * 12}px`,
+                        background: [
+                        "#f472b6",
+                        "#c4b5fd",
+                        "#818cf8",
+                        "#fbbf24",
+                        "#34d399",
+                        ][Math.floor(Math.random() * 5)],
+                    }}
+                    />
+                ))}
+                </div>
+            )}
+            <div className="relative z-10">
+                {/* Icon */}
+                <div
+                className={`mx-auto flex items-center justify-center h-24 w-24 rounded-full ${
+                    isSuccess ? "bg-green-100" : "bg-blue-100"
+                } mb-6 animate-fade-in`}
+                >
+                {isSuccess ? (
+                    <svg
+                    className="h-12 w-12 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                    />
+                    </svg>
+                ) : (
+                    <svg
+                    className="h-12 w-12 text-blue-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                    </svg>
+                )}
+                </div>
+                {/* Title */}
+                <h2
+                className={`text-3xl font-extrabold ${
+                    isSuccess ? "text-green-900" : "text-blue-900"
+                } mb-4 animate-fade-in`}
+                >
+                {isSuccess ? "Payment Successful!" : "Payment Status Updated"}
+                </h2>
+                {/* Message */}
+                <p className="text-lg text-white/80 mb-6 animate-fade-in">
+                {paymentResult.message}
+                </p>
+                {/* Payment Details */}
+                {paymentResult.collect_id && (
+                <div className="bg-white/40 rounded-xl p-4 mb-6 text-left animate-fade-in">
+                    <h3 className="text-sm font-bold text-indigo-700 mb-3">
+                    Payment Details
+                    </h3>
+                    <div className="space-y-2 text-sm text-indigo-900">
+                    <div className="flex justify-between">
+                        <span>Collection ID:</span>
+                        <span className="font-mono">
+                        {paymentResult.collect_id}
+                        </span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span>Status:</span>
+                        <span
+                        className={`font-semibold ${
+                            isSuccess ? "text-green-600" : "text-blue-600"
+                        }`}
+                        >
+                        {paymentResult.status?.toUpperCase()}
+                        </span>
+                    </div>
+                    {paymentResult.amount && (
+                        <div className="flex justify-between">
+                        <span>Amount:</span>
+                        <span className="font-semibold">
+                            ₹{paymentResult.amount}
+                        </span>
+                        </div>
+                    )}
+                    <div className="flex justify-between">
+                        <span>Payment Time:</span>
+                        <span>{new Date().toLocaleString()}</span>
+                    </div>
+                    </div>
+                </div>
+                )}
+                {/* Success Message */}
+                {isSuccess && (
+                <div className="bg-green-100 border border-green-200 rounded-xl p-4 mb-6 animate-fade-in">
+                    <p className="text-sm text-green-700 font-semibold">
+                    Your payment has been processed successfully. You should
+                    receive a confirmation email shortly.
+                    </p>
+                </div>
+                )}
+                {/* Action Buttons */}
+                <div className="space-y-3">
+                <button
+                    onClick={handleGoHome}
+                    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-base font-semibold text-white bg-gradient-to-r from-pink-500 to-indigo-500 hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-400"
+                >
+                    Make Another Payment
+                </button>
+                <button
+                    onClick={handleViewTransactions}
+                    className="w-full flex justify-center py-3 px-4 border border-white/40 rounded-xl shadow-lg text-base font-semibold text-indigo-700 bg-white/70 hover:bg-white/90 hover:text-pink-500 transition-colors duration-200"
+                >
+                    View All Transactions
+                </button>
+                </div>
+                {/* Footer */}
+                <div className="mt-8 pt-6 border-t border-white/30 animate-fade-in">
+                <p className="text-xs text-white/80 text-center">
+                    Payment processed by EDVIRON Payment Gateway
+                </p>
+                </div>
+            </div>
+            </div>
+        </div>
+        </div>
+    );
+    };
+
+    export default PaymentSuccess;
+
+Register
+    import React, { useState } from "react";
+    import { Link, useNavigate } from "react-router-dom";
+    import { apiService } from "../services/api";
+
+    const Register: React.FC = () => {
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+    });
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState(false);
+    const navigate = useNavigate();
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData({
+        ...formData,
+        [e.target.name]: e.target.value,
+        });
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setError("");
+
+        // Basic validation
+        if (formData.password !== formData.confirmPassword) {
+        setError("Passwords do not match");
+        setIsLoading(false);
+        return;
+        }
+
+        if (formData.password.length < 6) {
+        setError("Password must be at least 6 characters long");
+        setIsLoading(false);
+        return;
+        }
+
+        try {
+        await apiService.register(
+            formData.name,
+            formData.email,
+            formData.password
+        );
+        setSuccess(true);
+        setTimeout(() => {
+            navigate("/login");
+        }, 2000);
+        } catch (err: any) {
+        setError(
+            err.response?.data?.message || "Registration failed. Please try again."
+        );
+        } finally {
+        setIsLoading(false);
+        }
+    };
+
+    if (success) {
+        return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-md w-full">
+            <div className="bg-white/30 backdrop-blur-xl rounded-3xl shadow-2xl p-8 text-center animate-fade-in">
+                <div className="mx-auto h-12 w-12 text-green-400 mb-4 animate-fade-in">
+                <svg
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                    />
+                </svg>
+                </div>
+                <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 mb-2 drop-shadow-lg animate-fade-in">
+                Registration Successful!
+                </h2>
+                <p className="mt-2 text-sm text-white/80 animate-fade-in">
+                You can now login with your credentials. Redirecting to login
+                page...
+                </p>
+            </div>
+            </div>
+        </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full">
+            <div className="bg-white/30 backdrop-blur-xl rounded-3xl shadow-2xl p-8 animate-fade-in">
+            <h2 className="text-center text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 mb-2 drop-shadow-lg animate-fade-in">
+                Create your account
+            </h2>
+            <p className="text-center text-sm text-white/80 mb-6 animate-fade-in">
+                Edviron School Payment Dashboard
+            </p>
+            <form className="space-y-6" onSubmit={handleSubmit}>
+                {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl animate-fade-in">
+                    {error}
+                </div>
+                )}
+                <div className="space-y-4">
+                <div>
+                    <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-white/80"
+                    >
+                    Full Name
+                    </label>
+                    <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    autoComplete="name"
+                    required
+                    className="mt-1 block w-full px-4 py-3 border border-white/40 rounded-xl shadow-sm placeholder-white/60 bg-white/20 text-white focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400"
+                    placeholder="Enter your full name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    />
+                </div>
+                <div>
+                    <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-white/80"
+                    >
+                    Email address
+                    </label>
+                    <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    className="mt-1 block w-full px-4 py-3 border border-white/40 rounded-xl shadow-sm placeholder-white/60 bg-white/20 text-white focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    />
+                </div>
+                <div>
+                    <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-white/80"
+                    >
+                    Password
+                    </label>
+                    <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    className="mt-1 block w-full px-4 py-3 border border-white/40 rounded-xl shadow-sm placeholder-white/60 bg-white/20 text-white focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400"
+                    placeholder="Enter your password (min 6 characters)"
+                    value={formData.password}
+                    onChange={handleChange}
+                    />
+                </div>
+                <div>
+                    <label
+                    htmlFor="confirmPassword"
+                    className="block text-sm font-medium text-white/80"
+                    >
+                    Confirm Password
+                    </label>
+                    <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    className="mt-1 block w-full px-4 py-3 border border-white/40 rounded-xl shadow-sm placeholder-white/60 bg-white/20 text-white focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
+                    placeholder="Confirm your password"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    />
+                </div>
+                </div>
+                <div>
+                <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-lg font-semibold rounded-xl text-white bg-gradient-to-r from-pink-500 to-indigo-500 shadow-lg hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {isLoading ? "Creating Account..." : "Create Account"}
+                </button>
+                </div>
+                <div className="text-center">
+                <p className="text-sm text-white/80">
+                    Already have an account?{" "}
+                    <Link
+                    to="/login"
+                    className="text-pink-300 hover:text-white font-semibold"
+                    >
+                    Sign in here
+                    </Link>
+                </p>
+                </div>
+            </form>
+            </div>
+        </div>
+        </div>
+    );
+    };
+
+    export default Register;
+
+TransactionsBySchool
+    import React, { useState, useEffect } from "react";
+    import { apiService } from "../services/api";
+    import type { Transaction, TransactionsResponse } from "../types";
+
+    const TransactionsBySchool: React.FC = () => {
+    const [selectedSchoolId, setSelectedSchoolId] = useState("");
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        totalPages: 1,
+        totalCount: 0,
+        hasNextPage: false,
+        hasPrevPage: false,
+    });
+
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+
+    // Predefined school IDs (in real app, this would come from API)
+    const commonSchoolIds = [
+        "65b0e6293e9f76a9694d84b4",
+        "school123",
+        "school456",
+        "school789",
+    ];
+
+    // Fetch transactions for selected school
+    const fetchTransactionsBySchool = async () => {
+        if (!selectedSchoolId.trim()) {
+        setTransactions([]);
+        setPagination({
+            currentPage: 1,
+            totalPages: 1,
+            totalCount: 0,
+            hasNextPage: false,
+            hasPrevPage: false,
+        });
+        return;
+        }
+
+        try {
+        setLoading(true);
+        setError("");
+
+        const response: TransactionsResponse =
+            await apiService.getTransactionsBySchool(selectedSchoolId, {
+            page,
+            limit,
+            });
+
+        setTransactions(response.data);
+        setPagination(response.pagination);
+        } catch (err: any) {
+        setError(err.response?.data?.message || "Failed to fetch transactions");
+        setTransactions([]);
+        } finally {
+        setLoading(false);
+        }
+    };
+
+    // Load transactions when school ID or page changes
+    useEffect(() => {
+        fetchTransactionsBySchool();
+    }, [selectedSchoolId, page]);
+
+    // Reset page when school changes
+    const handleSchoolChange = (schoolId: string) => {
+        setSelectedSchoolId(schoolId);
+        setPage(1);
+    };
+
+    // Status badge component
+    const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
+        const getStatusColor = (status: string) => {
+        switch (status.toLowerCase()) {
+            case "success":
+            return "bg-green-100 text-green-800";
+            case "pending":
+            return "bg-yellow-100 text-yellow-800";
+            case "failed":
+            return "bg-red-100 text-red-800";
+            default:
+            return "bg-gray-100 text-gray-800";
+        }
+        };
+
+        return (
+        <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+            status
+            )}`}
+        >
+            {status}
+        </span>
+        );
+    };
+
+    // Format currency
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        }).format(amount);
+    };
+
+    // Format date
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleString("en-IN");
+    };
+
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-6xl mx-auto space-y-8 animate-fade-in">
+            <div className="bg-white/30 backdrop-blur-xl rounded-3xl shadow-2xl p-8">
+            <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 mb-2 drop-shadow-lg">
+                Transactions by School
+            </h1>
+            <p className="mt-2 text-base text-white/80">
+                View all transactions for a specific school by entering or selecting
+                a school ID.
+            </p>
+            </div>
+            <div className="bg-white/30 backdrop-blur-xl rounded-3xl shadow-2xl p-8">
+            <h3 className="text-lg font-bold text-white mb-4">Select School</h3>
+            <div className="space-y-4">
+                <div>
+                <label
+                    htmlFor="schoolId"
+                    className="block text-sm font-medium text-white/80"
+                >
+                    School ID
+                </label>
+                <div className="mt-1 flex rounded-xl shadow-sm">
+                    <input
+                    type="text"
+                    id="schoolId"
+                    placeholder="Enter school ID (e.g., 65b0e6293e9f76a9694d84b4)"
+                    value={selectedSchoolId}
+                    onChange={(e) => handleSchoolChange(e.target.value)}
+                    className="flex-1 min-w-0 block w-full px-4 py-3 rounded-l-xl border-white/40 bg-white/20 text-white focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-pink-400"
+                    />
+                    <button
+                    onClick={fetchTransactionsBySchool}
+                    className="inline-flex items-center px-6 py-3 border border-l-0 border-white/40 rounded-r-xl bg-white/70 text-indigo-700 text-base font-semibold hover:bg-white/90 hover:text-pink-500 transition-colors duration-200"
+                    >
+                    🔍 Search
+                    </button>
+                </div>
+                </div>
+                <div>
+                <label className="block text-sm font-medium text-white/80 mb-2">
+                    Or select from common school IDs:
+                </label>
+                <div className="flex flex-wrap gap-2">
+                    {commonSchoolIds.map((schoolId) => (
+                    <button
+                        key={schoolId}
+                        onClick={() => handleSchoolChange(schoolId)}
+                        className={`px-4 py-3 rounded-xl text-base font-semibold transition-colors duration-200 border ${
+                        selectedSchoolId === schoolId
+                            ? "bg-gradient-to-r from-pink-500 to-indigo-500 text-white border-white/40"
+                            : "bg-white/20 text-white/80 hover:bg-white/40 border-white/40"
+                        }`}
+                    >
+                        {schoolId}
+                    </button>
+                    ))}
+                </div>
+                </div>
+            </div>
+            </div>
+            {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl animate-fade-in">
+                {error}
+            </div>
+            )}
+            {loading && (
+            <div className="text-center py-8 animate-fade-in">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400"></div>
+                <p className="mt-2 text-base text-white/80">
+                Loading transactions...
+                </p>
+            </div>
+            )}
+            {!loading && selectedSchoolId && (
+            <div className="bg-white/30 backdrop-blur-xl rounded-3xl shadow-2xl p-8 animate-fade-in">
+                <h3 className="text-lg font-bold text-indigo-700 mb-2">
+                Transactions for School: {selectedSchoolId}
+                </h3>
+                <p className="mb-4 text-base text-indigo-900">
+                {transactions.length > 0 ? (
+                    <>
+                    {pagination.totalCount} total transactions found
+                    {pagination.totalPages > 1 &&
+                        ` (Page ${pagination.currentPage} of ${pagination.totalPages})`}
+                    </>
+                ) : (
+                    "No transactions found for this school"
+                )}
+                </p>
+                {transactions.length === 0 ? (
+                <div className="text-center py-8">
+                    <div className="text-indigo-300 text-6xl mb-4">📝</div>
+                    <p className="text-indigo-700 text-lg">No transactions found</p>
+                    <p className="text-indigo-400 text-sm mt-2">
+                    Try a different school ID or check if the school has any
+                    transactions.
+                    </p>
+                </div>
+                ) : (
+                <>
+                    <div className="overflow-x-auto rounded-xl shadow-lg">
+                    <table className="min-w-full divide-y divide-white/40">
+                        <thead className="bg-white/40">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-bold text-indigo-700 uppercase tracking-wider">
+                            Collect ID
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-bold text-indigo-700 uppercase tracking-wider">
+                            Gateway
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-bold text-indigo-700 uppercase tracking-wider">
+                            Order Amount
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-bold text-indigo-700 uppercase tracking-wider">
+                            Transaction Amount
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-bold text-indigo-700 uppercase tracking-wider">
+                            Status
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-bold text-indigo-700 uppercase tracking-wider">
+                            Custom Order ID
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-bold text-indigo-700 uppercase tracking-wider">
+                            Student
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-bold text-indigo-700 uppercase tracking-wider">
+                            Created At
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody className="bg-white/20 divide-y divide-white/40">
+                        {transactions.map((transaction) => (
+                            <tr
+                            key={transaction.collect_id}
+                            className="hover:bg-white/40 transition-colors duration-200"
+                            >
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-indigo-900">
+                                {transaction.collect_id}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-900">
+                                {transaction.gateway}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-900">
+                                {formatCurrency(transaction.order_amount)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-900">
+                                {transaction.transaction_amount
+                                ? formatCurrency(transaction.transaction_amount)
+                                : "-"}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                                <StatusBadge status={transaction.status} />
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-indigo-900">
+                                {transaction.custom_order_id}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-900">
+                                <div>
+                                <div className="font-bold">
+                                    {transaction.student_name}
+                                </div>
+                                <div className="text-indigo-500">
+                                    {transaction.student_email}
+                                </div>
+                                </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-900">
+                                {formatDate(transaction.createdAt)}
+                            </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                    </div>
+                    {pagination.totalPages > 1 && (
+                    <div className="flex items-center justify-between mt-6">
+                        <div className="text-base text-indigo-900">
+                        Showing{" "}
+                        <span className="font-bold">
+                            {(pagination.currentPage - 1) * limit + 1}
+                        </span>{" "}
+                        to{" "}
+                        <span className="font-bold">
+                            {Math.min(
+                            pagination.currentPage * limit,
+                            pagination.totalCount
+                            )}
+                        </span>{" "}
+                        of{" "}
+                        <span className="font-bold">{pagination.totalCount}</span>{" "}
+                        results
+                        </div>
+                        <div className="flex gap-2">
+                        <button
+                            onClick={() => setPage(page - 1)}
+                            disabled={!pagination.hasPrevPage}
+                            className="px-4 py-2 rounded-xl bg-white/70 text-indigo-700 font-semibold shadow-lg hover:bg-white/90 hover:text-pink-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Previous
+                        </button>
+                        <button
+                            onClick={() => setPage(page + 1)}
+                            disabled={!pagination.hasNextPage}
+                            className="px-4 py-2 rounded-xl bg-white/70 text-indigo-700 font-semibold shadow-lg hover:bg-white/90 hover:text-pink-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Next
+                        </button>
+                        </div>
+                    </div>
+                    )}
+                </>
+                )}
+            </div>
+            )}
+            {!selectedSchoolId && !loading && (
+            <div className="bg-white/30 backdrop-blur-xl rounded-3xl shadow-2xl p-8 text-center animate-fade-in">
+                <div className="text-indigo-300 text-6xl mb-4">🏫</div>
+                <h3 className="text-lg font-bold text-white mb-2">
+                Select a School
+                </h3>
+                <p className="text-white/80">
+                Enter a school ID above or select from the common school IDs to
+                view transactions.
+                </p>
+            </div>
+            )}
+        </div>
+        </div>
+    );
+    };
+
+    export default TransactionsBySchool;
+
+TransactionsOverview
+    import React, { useState, useEffect, useRef } from "react";
+    import { useSearchParams } from "react-router-dom";
+    import { apiService } from "../services/api";
+    import type { Transaction, TransactionsResponse } from "../types";
+
+    const TransactionsOverview: React.FC = () => {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [showFiltersClearedNotification, setShowFiltersClearedNotification] =
+        useState(false);
+
+    // Simple flag to track if we should auto-reset
+    const [needsAutoReset, setNeedsAutoReset] = useState(false);
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        totalPages: 1,
+        totalCount: 0,
+        hasNextPage: false,
+        hasPrevPage: false,
+    });
+
+    // Default clean filters
+    const defaultFilters = {
+        page: 1,
+        limit: 10,
+        sort: "createdAt",
+        order: "desc",
+        status: "",
+        school_id: "",
+        gateway: "",
+    };
+
+    // Filter states - ALWAYS start with clean defaults
+    const [filters, setFilters] = useState(() => {
+        console.log("TransactionsOverview: Initializing filters");
+        console.log(
+        "URL Search Params:",
+        Object.fromEntries(searchParams.entries())
+        );
+
+        // Check if we have payment completion params - if so, ignore all filters
+        const hasPaymentParams =
+        searchParams.get("payment_completed") === "true" ||
+        searchParams.get("reset_filters") === "true" ||
+        searchParams.get("refresh") === "true";
+
+        if (hasPaymentParams) {
+        console.log("Payment completion detected - using clean default filters");
+        return defaultFilters;
+        }
+
+        // Only use URL params if they are explicitly set and meaningful
+        const statusParam = searchParams.get("status");
+        const schoolParam = searchParams.get("school_id");
+        const gatewayParam = searchParams.get("gateway");
+
+        const hasExplicitFilters =
+        (statusParam && statusParam !== "" && statusParam !== "undefined") ||
+        (schoolParam && schoolParam !== "" && schoolParam !== "undefined") ||
+        (gatewayParam && gatewayParam !== "" && gatewayParam !== "undefined");
+
+        console.log("Explicit filters check:", {
+        status: statusParam,
+        school_id: schoolParam,
+        gateway: gatewayParam,
+        hasExplicitFilters,
+        });
+
+        if (hasExplicitFilters) {
+        const urlFilters = {
+            page: Number(searchParams.get("page")) || 1,
+            limit: Number(searchParams.get("limit")) || 10,
+            sort: searchParams.get("sort") || "createdAt",
+            order: searchParams.get("order") || "desc",
+            status: statusParam || "",
+            school_id: schoolParam || "",
+            gateway: gatewayParam || "",
+        };
+        console.log("Using explicit URL filters:", urlFilters);
+        return urlFilters;
+        }
+
+        console.log("No explicit filters - using clean defaults:", defaultFilters);
+        return defaultFilters;
+    });
+
+    // Track if this is the initial load
+    const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
+
+    // Ref for the reset button to trigger it programmatically
+    const resetButtonRef = useRef<HTMLButtonElement>(null);
+
+    // Function to reset filters (same logic as reset button)
+    const resetFiltersAndFetch = async () => {
+        console.log("resetFiltersAndFetch: Resetting filters and fetching data");
+        setFilters(defaultFilters);
+        setSearchParams(new URLSearchParams());
+
+        // Wait a moment for state to update, then fetch
+        setTimeout(async () => {
+        await fetchTransactions(true);
+        }, 100);
+    };
+
+    // Available filter options
+    const statusOptions = ["", "PENDING", "SUCCESS", "FAILED", "CANCELLED"];
+    const sortOptions = [
+        { value: "createdAt", label: "Created Date" },
+        { value: "payment_time", label: "Payment Time" },
+        { value: "order_amount", label: "Order Amount" },
+        { value: "transaction_amount", label: "Transaction Amount" },
+        { value: "status", label: "Status" },
+    ];
+
+    // Fetch transactions
+    const fetchTransactions = async (forceFresh = false) => {
+        try {
+        setLoading(true);
+        setError("");
+
+        const params: any = Object.fromEntries(
+            Object.entries(filters).filter(
+            ([_, value]) => value !== "" && value !== 0
+            )
+        );
+
+        // Add cache busting if forcing fresh data
+        if (forceFresh) {
+            params._cacheBust = true;
+        }
+
+        console.log("fetchTransactions called with:");
+        console.log("- forceFresh:", forceFresh);
+        console.log("- current filters:", filters);
+        console.log("- API params:", params);
+
+        const response: TransactionsResponse = await apiService.getTransactions(
+            params
+        );
+
+        console.log("API response:", {
+            dataCount: response.data?.length || 0,
+            totalCount: response.pagination?.totalCount || 0,
+        });
+
+        setTransactions(response.data);
+        setPagination(response.pagination);
+        } catch (err: any) {
+        setError(err.response?.data?.message || "Failed to fetch transactions");
+        } finally {
+        setLoading(false);
+        }
+    };
+
+    // Update URL params when filters change
+    const updateFilters = (newFilters: Partial<typeof filters>) => {
+        const updatedFilters = { ...filters, ...newFilters };
+        setFilters(updatedFilters);
+
+        // Update URL params
+        const params = new URLSearchParams();
+        Object.entries(updatedFilters).forEach(([key, value]) => {
+        if (value !== "" && value !== 0) {
+            params.set(key, String(value));
+        }
+        });
+        setSearchParams(params);
+    };
+
+    // Check for payment completion indicators and recent transactions
+    useEffect(() => {
+        console.log("🔍 Dashboard mounted - checking for payment completion");
+
+        // Check URL parameters
+        const urlHasPaymentParams =
+        searchParams.get("payment_completed") === "true" ||
+        searchParams.get("reset_filters") === "true" ||
+        searchParams.get("refresh") === "true";
+
+        // Check localStorage
+        const hasRecentPayment = localStorage.getItem("recent_payment_completion");
+
+        console.log("URL params found:", urlHasPaymentParams);
+        console.log("Recent payment found:", !!hasRecentPayment);
+
+        if (urlHasPaymentParams || hasRecentPayment) {
+        console.log("💥 PAYMENT COMPLETION DETECTED - WILL AUTO-RESET");
+        setNeedsAutoReset(true);
+
+        // Clean up
+        if (hasRecentPayment) {
+            localStorage.removeItem("recent_payment_completion");
+        }
+        if (urlHasPaymentParams) {
+            const params = new URLSearchParams();
+            setSearchParams(params);
+        }
+        } else {
+        // NEW: Check for recent transactions to detect payment completion
+        console.log(
+            "🚀 No explicit payment flags - will check for recent transactions after data loads"
+        );
+
+        // Set a flag to check for recent transactions after initial data load
+        setTimeout(() => {
+            checkForRecentPayments();
+        }, 2000);
+        }
+    }, []); // Run once on mount
+
+    // Function to detect recent payments from transaction data
+    const checkForRecentPayments = async () => {
+        try {
+        console.log("🔍 Checking for recent payments in transaction data...");
+
+        // Get last check time from localStorage (default to 5 minutes ago)
+        const lastCheckTime = localStorage.getItem("dashboard_last_check");
+        const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+        const checkSince = lastCheckTime
+            ? parseInt(lastCheckTime)
+            : fiveMinutesAgo;
+
+        console.log("Checking for transactions since:", new Date(checkSince));
+
+        // Force a fresh API call to get latest data
+        const params: any = {
+            page: 1,
+            limit: 20, // Get more recent transactions
+            sort: "createdAt",
+            order: "desc",
+            _cacheBust: true,
+        };
+
+        const response: TransactionsResponse = await apiService.getTransactions(
+            params
+        );
+
+        if (response.data && response.data.length > 0) {
+            // Check if any transactions were created recently
+            const recentTransactions = response.data.filter((transaction) => {
+            const transactionTime = new Date(transaction.createdAt).getTime();
+            return transactionTime > checkSince;
+            });
+
+            console.log(`Found ${recentTransactions.length} recent transactions`);
+
+            if (recentTransactions.length > 0) {
+            console.log(
+                "🎉 RECENT PAYMENT DETECTED FROM TRANSACTION DATA - TRIGGERING AUTO-RESET"
+            );
+            setNeedsAutoReset(true);
+            }
+        }
+
+        // Update last check time
+        localStorage.setItem("dashboard_last_check", Date.now().toString());
+        } catch (error) {
+        console.error("Error checking for recent payments:", error);
+        }
+    };
+
+    // Simple auto-reset: Click the reset button after a short delay
+    useEffect(() => {
+        if (needsAutoReset) {
+        console.log(
+            "🚀 AUTO-RESET TRIGGERED - Will click reset button in 1 second"
+        );
+
+        const timer = setTimeout(() => {
+            console.log("💆 Attempting to click reset button...");
+
+            if (resetButtonRef.current) {
+            console.log("✨ SUCCESS: Clicking reset button programmatically!");
+            resetButtonRef.current.click();
+            } else {
+            console.log(
+                "🔧 FALLBACK: Button ref not found, calling function directly"
+            );
+            resetFiltersAndFetch();
+            }
+
+            setNeedsAutoReset(false);
+            console.log("🏁 Auto-reset completed");
+        }, 1000); // Wait 1 second for component to fully render
+
+        return () => clearTimeout(timer);
+        }
+    }, [needsAutoReset]);
+
+    // Initial load effect - FORCE clean start
+    useEffect(() => {
+        if (!hasInitiallyLoaded) {
+        console.log("🏁 TransactionsOverview: Initial load starting");
+        setHasInitiallyLoaded(true);
+
+        // Check current filter state
+        console.log("📊 Current filters at initial load:", filters);
+
+        // If any filters are problematic, force a clean reset
+        const hasProblematicFilters =
+            filters.status !== "" ||
+            filters.school_id !== "" ||
+            filters.gateway !== "";
+
+        console.log("🔍 Has problematic filters:", hasProblematicFilters);
+
+        if (hasProblematicFilters || !needsAutoReset) {
+            console.log("🧹 Forcing clean start with default filters");
+            setTimeout(() => {
+            setFilters(defaultFilters);
+            setSearchParams(new URLSearchParams());
+            setTimeout(() => {
+                fetchTransactions(true);
+            }, 100);
+            }, 100);
+        }
+        }
+    }, []); // Run only once on mount
+
+    // Load transactions when filters change (but not on initial load)
+    useEffect(() => {
+        if (hasInitiallyLoaded) {
+        fetchTransactions();
+        }
+    }, [filters, hasInitiallyLoaded]);
+
+    // AUTO-RESET WHEN SHOWING 0 TRANSACTIONS
+    useEffect(() => {
+        // Only trigger if we have loaded data and got 0 transactions
+        if (
+        !loading &&
+        hasInitiallyLoaded &&
+        transactions.length === 0 &&
+        pagination.totalCount === 0
+        ) {
+        // Check if we have any active filters that might be causing the issue
+        const hasActiveFilters =
+            filters.status !== "" ||
+            filters.school_id !== "" ||
+            filters.gateway !== "";
+
+        console.log("🔴 ZERO TRANSACTIONS DETECTED!");
+        console.log("Has active filters:", hasActiveFilters);
+        console.log("Current filters:", filters);
+
+        if (hasActiveFilters && !needsAutoReset) {
+            console.log(
+            "🚨 ZERO TRANSACTIONS WITH ACTIVE FILTERS - AUTO-RESETTING!"
+            );
+            setNeedsAutoReset(true);
+        }
+        }
+    }, [
+        loading,
+        hasInitiallyLoaded,
+        transactions.length,
+        pagination.totalCount,
+        filters,
+        needsAutoReset,
+    ]);
+
+    // Status badge component with proper 4-category classification
+    const StatusBadge: React.FC<{ transaction: Transaction }> = ({
+        transaction,
+    }) => {
+        // Use status_category from backend if available, otherwise classify the raw status
+        const getDisplayStatus = (): string => {
+        if (transaction.status_category) {
+            console.log(
+            "🎯 Using backend status_category:",
+            transaction.status_category,
+            "for transaction:",
+            transaction.collect_id
+            );
+            return transaction.status_category;
+        }
+
+        console.log(
+            "⚙️ Fallback: Classifying raw status on frontend:",
+            transaction.status
+        );
+        return normalizeStatus(transaction.status);
+        };
+
+        // Function to normalize and classify status values (fallback for older data)
+        const normalizeStatus = (rawStatus: string): string => {
+        if (!rawStatus) return "CANCELLED";
+
+        const status = rawStatus.toLowerCase().trim();
+
+        console.log("🏷️  Raw status:", rawStatus, "→ Normalized:", status);
+
+        // SUCCESS - Completed payments
+        if (
+            ["success", "successful", "completed", "paid", "confirm"].includes(
+            status
+            )
+        ) {
+            return "SUCCESS";
+        }
+
+        // PENDING - Payments in progress
+        if (
+            [
+            "pending",
+            "processing",
+            "initiated",
+            "in_progress",
+            "inprogress",
+            ].includes(status)
+        ) {
+            return "PENDING";
+        }
+
+        // FAILED - Failed payments
+        if (
+            ["failed", "failure", "error", "declined", "rejected"].includes(status)
+        ) {
+            return "FAILED";
+        }
+
+        // CANCELLED - User dropped/cancelled payments
+        // NOTE: EDVIRON uses 'USER_DROPPED' for cancelled payments
+        if (
+            [
+            "cancelled",
+            "canceled",
+            "dropped",
+            "abandoned",
+            "timeout",
+            "user_dropped",
+            ].includes(status)
+        ) {
+            return "CANCELLED";
+        }
+
+        // Default case - log unknown status for debugging
+        console.warn(
+            "⚠️  Unknown payment status:",
+            rawStatus,
+            "- will analyze and categorize"
+        );
+        console.log("📊  Status analysis for:", rawStatus);
+
+        // Try to match common patterns if exact match didn't work
+        if (
+            status.includes("success") ||
+            status.includes("paid") ||
+            status.includes("complete")
+        ) {
+            console.log("✅ Pattern match: SUCCESS");
+            return "SUCCESS";
+        }
+        if (
+            status.includes("pending") ||
+            status.includes("process") ||
+            status.includes("progress")
+        ) {
+            console.log("🔄 Pattern match: PENDING");
+            return "PENDING";
+        }
+        if (
+            status.includes("fail") ||
+            status.includes("error") ||
+            status.includes("decline")
+        ) {
+            console.log("❌ Pattern match: FAILED");
+            return "FAILED";
+        }
+        if (
+            status.includes("cancel") ||
+            status.includes("drop") ||
+            status.includes("abandon") ||
+            status.includes("timeout")
+        ) {
+            console.log("🚫 Pattern match: CANCELLED");
+            return "CANCELLED";
+        }
+
+        // If no pattern matches, default to CANCELLED and log for investigation
+        console.warn(
+            "⚠️  No pattern match found for:",
+            rawStatus,
+            "- defaulting to CANCELLED"
+        );
+        return "CANCELLED";
+        };
+
+        const getStatusColor = (normalizedStatus: string) => {
+        switch (normalizedStatus) {
+            case "SUCCESS":
+            return "bg-green-100 text-green-800";
+            case "PENDING":
+            return "bg-yellow-100 text-yellow-800";
+            case "FAILED":
+            return "bg-red-100 text-red-800";
+            case "CANCELLED":
+            return "bg-gray-100 text-gray-800";
+            default:
+            return "bg-purple-100 text-purple-800"; // Fallback for debugging
+        }
+        };
+
+        const displayStatus = getDisplayStatus();
+        const statusColor = getStatusColor(displayStatus);
+
+        return (
+        <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor}`}
+            title={`Raw: ${transaction.status} | Category: ${displayStatus}`}
+        >
+            {displayStatus}
+        </span>
+        );
+    };
+
+    // Format currency
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        }).format(amount);
+    };
+
+    // Format date
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleString("en-IN");
+    };
+
+    // --- Redesigned UI ---
+    return (
+        <div className="min-h-screen py-10 px-2 sm:px-8 flex flex-col items-center justify-start bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100">
+        <div className="w-full max-w-6xl">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+            <div className="mb-4 sm:mb-0">
+                <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 drop-shadow-lg">
+                All Transactions
+                </h1>
+                <p className="mt-2 text-base text-gray-700 font-medium">
+                A comprehensive list of all payment transactions with advanced
+                filtering and sorting.
+                </p>
+            </div>
+            <div className="flex space-x-3">
+                <button
+                onClick={() => fetchTransactions(true)}
+                className="relative inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 px-6 py-2 text-base font-semibold text-white shadow-lg hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                >
+                <span className="animate-pulse mr-2">🔄</span> Refresh
+                </button>
+                <button
+                ref={resetButtonRef}
+                onClick={resetFiltersAndFetch}
+                className="relative inline-flex items-center justify-center rounded-xl bg-white/70 px-6 py-2 text-base font-semibold text-purple-700 shadow-lg hover:bg-white/90 hover:scale-105 transition-transform duration-200 border border-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                >
+                <span className="mr-2">🧹</span> Reset Filters
+                </button>
+            </div>
+            </div>
+
+            {/* Auto-reset indicator */}
+            {needsAutoReset && (
+            <div className="bg-blue-100/60 border border-blue-300 rounded-xl p-4 mb-4 flex items-center shadow animate-fade-in">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-4"></div>
+                <div>
+                <p className="text-base font-semibold text-blue-800">
+                    🔄 Auto-resetting filters after payment completion...
+                </p>
+                <p className="text-xs text-blue-600 mt-1">
+                    Automatically triggering filter reset to show all transactions.
+                </p>
+                </div>
+            </div>
+            )}
+
+            {/* Filters cleared notification */}
+            {showFiltersClearedNotification && (
+            <div className="bg-yellow-100/60 border border-yellow-300 rounded-xl p-4 mb-4 flex items-center shadow animate-fade-in">
+                <svg
+                className="h-6 w-6 text-yellow-400 mr-3"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                >
+                <path
+                    fillRule="evenodd"
+                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                />
+                </svg>
+                <div className="flex-1">
+                <p className="text-base font-semibold text-yellow-800">
+                    Filters cleared to show your new transaction
+                </p>
+                <p className="text-xs text-yellow-700 mt-1">
+                    All filters have been reset to display all transactions,
+                    including your recent payment.
+                </p>
+                </div>
+                <button
+                onClick={() => setShowFiltersClearedNotification(false)}
+                className="ml-4 text-yellow-400 hover:text-yellow-600 focus:outline-none focus:text-yellow-600"
+                >
+                <svg className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                    <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                    />
+                </svg>
+                </button>
+            </div>
+            )}
+
+            {/* Filters */}
+            <div className="bg-white/80 backdrop-blur-lg shadow-xl rounded-2xl p-8 mb-8 border border-purple-100 animate-fade-in">
+            <h3 className="text-2xl font-bold text-purple-700 mb-6">
+                Filters & Sorting
+            </h3>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {/* Status Filter */}
+                <div>
+                <label
+                    htmlFor="status"
+                    className="block text-sm font-semibold text-purple-700 mb-1"
+                >
+                    Status
+                </label>
+                <select
+                    id="status"
+                    value={filters.status}
+                    onChange={(e) =>
+                    updateFilters({ status: e.target.value, page: 1 })
+                    }
+                    className="mt-1 block w-full rounded-xl border-purple-200 py-2 pl-3 pr-10 text-base focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white/70 shadow"
+                >
+                    <option value="">All Statuses</option>
+                    {statusOptions.slice(1).map((status) => (
+                    <option key={status} value={status}>
+                        {status}
+                    </option>
+                    ))}
+                </select>
+                </div>
+
+                {/* School ID Filter */}
+                <div>
+                <label
+                    htmlFor="school_id"
+                    className="block text-sm font-semibold text-purple-700 mb-1"
+                >
+                    School ID
+                </label>
+                <input
+                    type="text"
+                    id="school_id"
+                    placeholder="Filter by School ID"
+                    value={filters.school_id}
+                    onChange={(e) =>
+                    updateFilters({ school_id: e.target.value, page: 1 })
+                    }
+                    className="mt-1 block w-full rounded-xl border-purple-200 py-2 pl-3 pr-10 text-base focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white/70 shadow"
+                />
+                </div>
+
+                {/* Gateway Filter */}
+                <div>
+                <label
+                    htmlFor="gateway"
+                    className="block text-sm font-semibold text-purple-700 mb-1"
+                >
+                    Gateway
+                </label>
+                <input
+                    type="text"
+                    id="gateway"
+                    placeholder="Filter by Gateway"
+                    value={filters.gateway}
+                    onChange={(e) =>
+                    updateFilters({ gateway: e.target.value, page: 1 })
+                    }
+                    className="mt-1 block w-full rounded-xl border-purple-200 py-2 pl-3 pr-10 text-base focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white/70 shadow"
+                />
+                </div>
+
+                {/* Sort By */}
+                <div>
+                <label
+                    htmlFor="sort"
+                    className="block text-sm font-semibold text-purple-700 mb-1"
+                >
+                    Sort By
+                </label>
+                <div className="mt-1 flex space-x-2">
+                    <select
+                    id="sort"
+                    value={filters.sort}
+                    onChange={(e) => updateFilters({ sort: e.target.value })}
+                    className="block w-full rounded-xl border-purple-200 py-2 pl-3 pr-10 text-base focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white/70 shadow"
+                    >
+                    {sortOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                        {option.label}
+                        </option>
+                    ))}
+                    </select>
+                    <select
+                    value={filters.order}
+                    onChange={(e) => updateFilters({ order: e.target.value })}
+                    className="block rounded-xl border-purple-200 py-2 pl-3 pr-10 text-base focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white/70 shadow"
+                    >
+                    <option value="desc">Desc</option>
+                    <option value="asc">Asc</option>
+                    </select>
+                </div>
+                </div>
+            </div>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+            <div className="bg-red-100/80 border border-red-400 text-red-700 px-6 py-4 rounded-xl shadow mb-6 animate-fade-in">
+                {error}
+            </div>
+            )}
+
+            {/* Loading State */}
+            {loading && (
+            <div className="text-center py-12 animate-fade-in">
+                <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600"></div>
+                <p className="mt-4 text-base text-purple-600 font-semibold">
+                Loading transactions...
+                </p>
+            </div>
+            )}
+
+            {/* Transactions Table */}
+            {!loading && (
+            <div className="bg-white/80 backdrop-blur-lg shadow-2xl rounded-2xl overflow-hidden border border-purple-100 animate-fade-in">
+                <div className="px-6 py-6">
+                <h3 className="text-2xl font-bold text-purple-700 mb-2">
+                    Transactions{" "}
+                    <span className="text-base font-normal text-gray-500">
+                    ({pagination.totalCount} total)
+                    </span>
+                </h3>
+                <p className="text-sm text-gray-500 mb-2">
+                    Page {pagination.currentPage} of {pagination.totalPages}
+                </p>
+                </div>
+
+                {transactions.length === 0 ? (
+                <div className="text-center py-12">
+                    <p className="text-purple-400 text-lg font-semibold">
+                    No transactions found.
+                    </p>
+                </div>
+                ) : (
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-purple-200">
+                    <thead className="bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100">
+                        <tr>
+                        <th className="px-6 py-3 text-left text-xs font-bold text-purple-700 uppercase tracking-wider">
+                            Collect ID
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-bold text-purple-700 uppercase tracking-wider">
+                            School ID
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-bold text-purple-700 uppercase tracking-wider">
+                            Gateway
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-bold text-purple-700 uppercase tracking-wider">
+                            Order Amount
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-bold text-purple-700 uppercase tracking-wider">
+                            Transaction Amount
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-bold text-purple-700 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-bold text-purple-700 uppercase tracking-wider">
+                            Custom Order ID
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-bold text-purple-700 uppercase tracking-wider">
+                            Created At
+                        </th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white/80 divide-y divide-purple-100">
+                        {transactions.map((transaction) => (
+                        <tr
+                            key={transaction.collect_id}
+                            className="hover:bg-gradient-to-r hover:from-blue-50 hover:via-purple-50 hover:to-pink-50 transition-colors duration-200"
+                        >
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-purple-900">
+                            {transaction.collect_id}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-purple-900">
+                            {transaction.school_id}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-purple-900">
+                            {transaction.gateway}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-purple-900">
+                            {formatCurrency(transaction.order_amount)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-purple-900">
+                            {transaction.transaction_amount
+                                ? formatCurrency(transaction.transaction_amount)
+                                : "-"}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                            <StatusBadge transaction={transaction} />
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-purple-900">
+                            {transaction.custom_order_id}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-purple-900">
+                            {formatDate(transaction.createdAt)}
+                            </td>
+                        </tr>
+                        ))}
+                    </tbody>
+                    </table>
+                </div>
+                )}
+
+                {/* Pagination */}
+                {transactions.length > 0 && (
+                <div className="bg-white/80 px-6 py-4 flex items-center justify-between border-t border-purple-100 sm:px-8">
+                    <div className="flex-1 flex justify-between sm:hidden">
+                    <button
+                        onClick={() => updateFilters({ page: filters.page - 1 })}
+                        disabled={!pagination.hasPrevPage}
+                        className="relative inline-flex items-center px-4 py-2 border border-purple-200 text-base font-semibold rounded-xl text-purple-700 bg-white/70 hover:bg-purple-50 hover:scale-105 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Previous
+                    </button>
+                    <button
+                        onClick={() => updateFilters({ page: filters.page + 1 })}
+                        disabled={!pagination.hasNextPage}
+                        className="ml-3 relative inline-flex items-center px-4 py-2 border border-purple-200 text-base font-semibold rounded-xl text-purple-700 bg-white/70 hover:bg-purple-50 hover:scale-105 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Next
+                    </button>
+                    </div>
+                    <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p className="text-base text-purple-700 font-semibold">
+                        Showing{" "}
+                        <span className="font-bold">
+                            {(pagination.currentPage - 1) * filters.limit + 1}
+                        </span>{" "}
+                        to{" "}
+                        <span className="font-bold">
+                            {Math.min(
+                            pagination.currentPage * filters.limit,
+                            pagination.totalCount
+                            )}
+                        </span>{" "}
+                        of{" "}
+                        <span className="font-bold">{pagination.totalCount}</span>{" "}
+                        results
+                        </p>
+                    </div>
+                    <div>
+                        <nav
+                        className="relative z-0 inline-flex rounded-xl shadow-sm -space-x-px"
+                        aria-label="Pagination"
+                        >
+                        <button
+                            onClick={() =>
+                            updateFilters({ page: filters.page - 1 })
+                            }
+                            disabled={!pagination.hasPrevPage}
+                            className="relative inline-flex items-center px-3 py-2 rounded-l-xl border border-purple-200 bg-white/70 text-base font-semibold text-purple-500 hover:bg-purple-50 hover:scale-105 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Previous
+                        </button>
+                        <button
+                            onClick={() =>
+                            updateFilters({ page: filters.page + 1 })
+                            }
+                            disabled={!pagination.hasNextPage}
+                            className="relative inline-flex items-center px-3 py-2 rounded-r-xl border border-purple-200 bg-white/70 text-base font-semibold text-purple-500 hover:bg-purple-50 hover:scale-105 transition-transform duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Next
+                        </button>
+                        </nav>
+                    </div>
+                    </div>
+                </div>
+                )}
+            </div>
+            )}
+        </div>
+        </div>
+    );
+    };
+
+    export default TransactionsOverview;
+
+TransactionStatusCheck
+    import React, { useState } from "react";
+    import { apiService } from "../services/api";
+    import type { TransactionStatus } from "../types";
+
+    const TransactionStatusCheck: React.FC = () => {
+    const [customOrderId, setCustomOrderId] = useState("");
+    const [transactionStatus, setTransactionStatus] =
+        useState<TransactionStatus | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    // Check transaction status
+    const checkTransactionStatus = async () => {
+        if (!customOrderId.trim()) {
+        setError("Please enter a custom order ID");
+        return;
+        }
+
+        try {
+        setLoading(true);
+        setError("");
+
+        const response = await apiService.getTransactionStatus(customOrderId);
+        setTransactionStatus(response);
+        } catch (err: any) {
+        setError(
+            err.response?.data?.message || "Failed to fetch transaction status"
+        );
+        setTransactionStatus(null);
+        } finally {
+        setLoading(false);
+        }
+    };
+
+    // Handle form submission
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        checkTransactionStatus();
+    };
+
+    // Status badge component
+    const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
+        const getStatusConfig = (status: string) => {
+        switch (status.toLowerCase()) {
+            case "success":
+            return {
+                color: "bg-green-100 text-green-800 border-green-200",
+                icon: "✅",
+                label: "Success",
+            };
+            case "pending":
+            return {
+                color: "bg-yellow-100 text-yellow-800 border-yellow-200",
+                icon: "⏳",
+                label: "Pending",
+            };
+            case "failed":
+            return {
+                color: "bg-red-100 text-red-800 border-red-200",
+                icon: "❌",
+                label: "Failed",
+            };
+            default:
+            return {
+                color: "bg-gray-100 text-gray-800 border-gray-200",
+                icon: "📄",
+                label: status,
+            };
+        }
+        };
+
+        const config = getStatusConfig(status);
+
+        return (
+        <span
+            className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${config.color}`}
+        >
+            <span className="mr-1">{config.icon}</span>
+            {config.label}
+        </span>
+        );
+    };
+
+    // Format currency
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        }).format(amount);
+    };
+
+    // Format date
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleString("en-IN");
+    };
+
+    // --- Redesigned UI ---
+    return (
+        <div className="min-h-screen py-10 px-2 sm:px-8 flex flex-col items-center justify-start bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100">
+        <div className="w-full max-w-2xl">
+            <div className="mb-8">
+            <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 drop-shadow-lg">
+                Transaction Status Check
+            </h1>
+            <p className="mt-2 text-base text-gray-700 font-medium">
+                Enter a custom order ID to check the current status of a specific
+                transaction.
+            </p>
+            </div>
+
+            {/* Search Form */}
+            <div className="bg-white/80 backdrop-blur-lg shadow-xl rounded-2xl p-8 mb-8 border border-purple-100 animate-fade-in">
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                <label
+                    htmlFor="customOrderId"
+                    className="block text-lg font-bold text-purple-700 mb-2"
+                >
+                    Custom Order ID
+                </label>
+                <div className="flex rounded-xl shadow overflow-hidden">
+                    <input
+                    type="text"
+                    id="customOrderId"
+                    placeholder="Enter custom order ID (e.g., ORD_1234567890_abc123)"
+                    value={customOrderId}
+                    onChange={(e) => setCustomOrderId(e.target.value)}
+                    className="flex-1 min-w-0 block w-full px-4 py-3 rounded-l-xl border border-purple-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-300 bg-white/70 text-lg font-mono"
+                    required
+                    />
+                    <button
+                    type="submit"
+                    disabled={loading}
+                    className="inline-flex items-center px-6 py-3 rounded-r-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-lg font-semibold text-white shadow-lg hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-purple-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                    {loading ? (
+                        <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                        Checking...
+                        </>
+                    ) : (
+                        <>
+                        <span className="animate-pulse mr-2">🔍</span> Check
+                        Status
+                        </>
+                    )}
+                    </button>
+                </div>
+                </div>
+
+                {/* Quick Examples */}
+                <div className="text-sm text-purple-500">
+                <p>Examples of custom order IDs:</p>
+                <ul className="list-disc list-inside mt-1 space-y-1">
+                    <li>
+                    <code className="bg-purple-100 px-2 py-1 rounded font-mono">
+                        ORD_1234567890_abc123
+                    </code>
+                    </li>
+                    <li>
+                    <code className="bg-purple-100 px-2 py-1 rounded font-mono">
+                        ORD_9876543210_xyz789
+                    </code>
+                    </li>
+                </ul>
+                </div>
+            </form>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+            <div className="bg-red-100/80 border border-red-400 text-red-700 px-6 py-4 rounded-xl shadow mb-6 animate-fade-in flex items-center">
+                <span className="mr-2 text-xl">⚠️</span>
+                {error}
+            </div>
+            )}
+
+            {/* Loading State */}
+            {loading && (
+            <div className="text-center py-12 animate-fade-in">
+                <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600"></div>
+                <p className="mt-4 text-base text-purple-600 font-semibold">
+                Checking transaction status...
+                </p>
+            </div>
+            )}
+
+            {/* Transaction Status Results */}
+            {transactionStatus && !loading && (
+            <div className="bg-white/80 backdrop-blur-lg shadow-2xl rounded-2xl overflow-hidden border border-purple-100 animate-fade-in">
+                <div className="px-8 py-6 bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100">
+                <h3 className="text-2xl font-bold text-purple-700 flex items-center mb-2">
+                    <span className="mr-2">📊</span> Transaction Details
+                </h3>
+                <p className="text-sm text-gray-500">
+                    Complete information for order:{" "}
+                    <span className="font-mono text-purple-700">
+                    {transactionStatus.custom_order_id}
+                    </span>
+                </p>
+                </div>
+
+                <div className="border-t border-purple-100">
+                <dl>
+                    {/* Status */}
+                    <div className="bg-purple-50/60 px-8 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                    <dt className="text-lg font-bold text-purple-700">Status</dt>
+                    <dd className="mt-1 text-lg text-purple-900 sm:col-span-2">
+                        <StatusBadge status={transactionStatus.status} />
+                    </dd>
+                    </div>
+
+                    {/* Order Information */}
+                    <div className="bg-white/80 px-8 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                    <dt className="text-lg font-bold text-purple-700">
+                        Custom Order ID
+                    </dt>
+                    <dd className="mt-1 text-lg font-mono text-purple-900 sm:col-span-2">
+                        {transactionStatus.custom_order_id}
+                    </dd>
+                    </div>
+
+                    <div className="bg-purple-50/60 px-8 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                    <dt className="text-lg font-bold text-purple-700">
+                        Collect ID
+                    </dt>
+                    <dd className="mt-1 text-lg font-mono text-purple-900 sm:col-span-2">
+                        {transactionStatus.collect_id}
+                    </dd>
+                    </div>
+
+                    <div className="bg-white/80 px-8 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                    <dt className="text-lg font-bold text-purple-700">
+                        School ID
+                    </dt>
+                    <dd className="mt-1 text-lg text-purple-900 sm:col-span-2">
+                        {transactionStatus.school_id}
+                    </dd>
+                    </div>
+
+                    <div className="bg-purple-50/60 px-8 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                    <dt className="text-lg font-bold text-purple-700">Gateway</dt>
+                    <dd className="mt-1 text-lg text-purple-900 sm:col-span-2">
+                        {transactionStatus.gateway}
+                    </dd>
+                    </div>
+
+                    {/* Student Information */}
+                    <div className="bg-white/80 px-8 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                    <dt className="text-lg font-bold text-purple-700">
+                        Student Information
+                    </dt>
+                    <dd className="mt-1 text-lg text-purple-900 sm:col-span-2">
+                        <div className="space-y-1">
+                        <div>
+                            <strong>Name:</strong>{" "}
+                            {transactionStatus.student_info.name}
+                        </div>
+                        <div>
+                            <strong>ID:</strong> {transactionStatus.student_info.id}
+                        </div>
+                        <div>
+                            <strong>Email:</strong>{" "}
+                            {transactionStatus.student_info.email}
+                        </div>
+                        </div>
+                    </dd>
+                    </div>
+
+                    {/* Payment Information */}
+                    <div className="bg-purple-50/60 px-8 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                    <dt className="text-lg font-bold text-purple-700">
+                        Order Amount
+                    </dt>
+                    <dd className="mt-1 text-lg text-purple-900 sm:col-span-2">
+                        <span className="text-xl font-bold">
+                        {formatCurrency(transactionStatus.order_amount)}
+                        </span>
+                    </dd>
+                    </div>
+
+                    {transactionStatus.transaction_amount && (
+                    <div className="bg-white/80 px-8 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt className="text-lg font-bold text-purple-700">
+                        Transaction Amount
+                        </dt>
+                        <dd className="mt-1 text-lg text-purple-900 sm:col-span-2">
+                        <span className="text-xl font-bold">
+                            {formatCurrency(transactionStatus.transaction_amount)}
+                        </span>
+                        </dd>
+                    </div>
+                    )}
+
+                    {transactionStatus.payment_mode && (
+                    <div className="bg-purple-50/60 px-8 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt className="text-lg font-bold text-purple-700">
+                        Payment Mode
+                        </dt>
+                        <dd className="mt-1 text-lg text-purple-900 sm:col-span-2">
+                        {transactionStatus.payment_mode}
+                        </dd>
+                    </div>
+                    )}
+
+                    {transactionStatus.bank_reference && (
+                    <div className="bg-white/80 px-8 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt className="text-lg font-bold text-purple-700">
+                        Bank Reference
+                        </dt>
+                        <dd className="mt-1 text-lg font-mono text-purple-900 sm:col-span-2">
+                        {transactionStatus.bank_reference}
+                        </dd>
+                    </div>
+                    )}
+
+                    {/* Messages */}
+                    {transactionStatus.payment_message && (
+                    <div className="bg-purple-50/60 px-8 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt className="text-lg font-bold text-purple-700">
+                        Payment Message
+                        </dt>
+                        <dd className="mt-1 text-lg text-purple-900 sm:col-span-2">
+                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-base font-semibold">
+                            {transactionStatus.payment_message}
+                        </span>
+                        </dd>
+                    </div>
+                    )}
+
+                    {transactionStatus.error_message && (
+                    <div className="bg-white/80 px-8 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt className="text-lg font-bold text-purple-700">
+                        Error Message
+                        </dt>
+                        <dd className="mt-1 text-lg text-purple-900 sm:col-span-2">
+                        <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-base font-semibold">
+                            {transactionStatus.error_message}
+                        </span>
+                        </dd>
+                    </div>
+                    )}
+
+                    {/* Timestamps */}
+                    <div className="bg-purple-50/60 px-8 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                    <dt className="text-lg font-bold text-purple-700">
+                        Created At
+                    </dt>
+                    <dd className="mt-1 text-lg text-purple-900 sm:col-span-2">
+                        {formatDate(transactionStatus.createdAt)}
+                    </dd>
+                    </div>
+
+                    <div className="bg-white/80 px-8 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                    <dt className="text-lg font-bold text-purple-700">
+                        Last Updated
+                    </dt>
+                    <dd className="mt-1 text-lg text-purple-900 sm:col-span-2">
+                        {formatDate(transactionStatus.updatedAt)}
+                    </dd>
+                    </div>
+
+                    {transactionStatus.payment_time && (
+                    <div className="bg-purple-50/60 px-8 py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                        <dt className="text-lg font-bold text-purple-700">
+                        Payment Time
+                        </dt>
+                        <dd className="mt-1 text-lg text-purple-900 sm:col-span-2">
+                        {formatDate(transactionStatus.payment_time)}
+                        </dd>
+                    </div>
+                    )}
+                </dl>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 px-8 py-4 flex justify-end space-x-4">
+                <button
+                    onClick={() => {
+                    setTransactionStatus(null);
+                    setCustomOrderId("");
+                    }}
+                    className="inline-flex items-center px-6 py-3 rounded-xl bg-white/70 text-purple-700 font-semibold shadow hover:bg-white/90 hover:scale-105 transition-transform duration-200 border border-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                >
+                    Clear
+                </button>
+                <button
+                    onClick={checkTransactionStatus}
+                    className="inline-flex items-center px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white font-semibold shadow hover:scale-105 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                >
+                    🔄 Refresh
+                </button>
+                </div>
+            </div>
+            )}
+
+            {/* Help Text */}
+            {!transactionStatus && !loading && !error && (
+            <div className="text-center py-12 animate-fade-in">
+                <div className="text-purple-300 text-7xl mb-4">🔍</div>
+                <h3 className="text-2xl font-bold text-purple-700 mb-2">
+                Check Transaction Status
+                </h3>
+                <p className="text-purple-500 max-w-md mx-auto text-lg">
+                Enter a custom order ID in the search box above to view detailed
+                information about a specific transaction.
+                </p>
+            </div>
+            )}
+        </div>
+        </div>
+    );
+    };
+
+    export default TransactionStatusCheck;
+
