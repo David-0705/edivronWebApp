@@ -155,7 +155,7 @@ const TransactionsOverview: React.FC = () => {
                 id="status"
                 value={filters.status}
                 onChange={(e) => updateFilters({ status: e.target.value, page: 1 })}
-                className="mt-1 block w-full rounded-xl border border-border py-2 pl-3 pr-10 text-base focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground shadow"
+                className="mt-1 block w-full rounded-xl border border-gray-300 dark:border-gray-600 py-2 px-3 text-base bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 transition duration-200"
               >
                 <option value="">All Statuses</option>
                 {statusOptions.slice(1).map((status) => (
@@ -177,7 +177,7 @@ const TransactionsOverview: React.FC = () => {
                 placeholder="Filter by School ID"
                 value={filters.school_id}
                 onChange={(e) => updateFilters({ school_id: e.target.value, page: 1 })}
-                className="mt-1 block w-full rounded-xl border border-border py-2 pl-3 pr-10 text-base focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground shadow"
+                className="mt-1 block w-full rounded-xl border border-gray-300 dark:border-gray-600 py-2 px-3 text-base bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 transition duration-200"
               />
             </div>
 
@@ -192,7 +192,7 @@ const TransactionsOverview: React.FC = () => {
                 placeholder="Filter by Gateway"
                 value={filters.gateway}
                 onChange={(e) => updateFilters({ gateway: e.target.value, page: 1 })}
-                className="mt-1 block w-full rounded-xl border border-border py-2 pl-3 pr-10 text-base focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground shadow"
+                className="mt-1 block w-full rounded-xl border border-gray-300 dark:border-gray-600 py-2 px-3 text-base bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 transition duration-200"
               />
             </div>
 
@@ -206,7 +206,7 @@ const TransactionsOverview: React.FC = () => {
                   id="sort"
                   value={filters.sort}
                   onChange={(e) => updateFilters({ sort: e.target.value })}
-                  className="block w-full rounded-xl border border-border py-2 pl-3 pr-10 text-base focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground shadow"
+                  className="block w-full rounded-xl border border-gray-300 dark:border-gray-600 py-2 px-3 text-base bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 transition duration-200"
                 >
                   {sortOptions.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -217,7 +217,7 @@ const TransactionsOverview: React.FC = () => {
                 <select
                   value={filters.order}
                   onChange={(e) => updateFilters({ order: e.target.value })}
-                  className="block rounded-xl border border-border py-2 pl-3 pr-10 text-base focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground shadow"
+                  className="block w-28 rounded-xl border border-gray-300 dark:border-gray-600 py-2 px-3 text-base bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 transition duration-200"
                 >
                   <option value="desc">Desc</option>
                   <option value="asc">Asc</option>
@@ -226,6 +226,7 @@ const TransactionsOverview: React.FC = () => {
             </div>
           </div>
         </div>
+
 
         {/* Error Message */}
         {error && (
